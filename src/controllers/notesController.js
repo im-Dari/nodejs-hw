@@ -39,7 +39,7 @@ export const deleteNote = async (req, res, next) => {
     if (!deletedNote) {
       throw createHttpError(404, 'Note not found');
     }
-    res.status(200).json({ message: 'Note deleted successfully' });
+    res.status(200).json(deletedNote);
   } catch (error) {
     next(error);
   }
@@ -53,7 +53,7 @@ export const updateNote = async (req, res, next) => {
       noteId,
       req.body,
       {
-        new: true,
+        returnDocument: 'after',
         runValidators: true,
       }
     );
