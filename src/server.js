@@ -8,6 +8,8 @@ import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import notesRoutes from './routes/notesRoutes.js';
 
+import { errors } from 'celebrate';
+
 dotenv.config();
 
 const app = express();
@@ -17,7 +19,11 @@ await connectMongoDB();
 app.use(logger);
 app.use(cors());
 app.use(express.json());
+
 app.use(notesRoutes);
+
+app.use(errors());
+
 app.use(notFoundHandler);
 app.use(errorHandler);
 
