@@ -41,3 +41,60 @@ export const getAllNotes = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getNoteById = async (req, res, next) => {
+  try {
+    const { noteId } = req.params;
+    const note = await Note.findById(noteId);
+
+    if (!note) {
+      return res.status(404).json({ message: 'Note not found' });
+    }
+
+    res.status(200).json(note);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createNote = async (req, res, next) => {
+  try {
+    const newNote = await Note.create(req.body);
+    res.status(201).json(newNote);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteNote = async (req, res, next) => {
+  try {
+    const { noteId } = req.params;
+    const deletedNote = await Note.findByIdAndDelete(noteId);
+
+    if (!deletedNote) {
+      return res.status(404).json({ message: 'Note not found' });
+    }
+
+    res.status(200).json({ message: 'Note deleted' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateNote = async (req, res, next) => {
+  try {
+    const { noteId } = req.params;
+    const updatedNote = await Note.findByIdAndUpdate(noteId, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedNote) {
+      return res.status(404).json({ message: 'Note not found' });
+    }
+
+    res.status(200).json(updatedNote);
+  } catch (error) {
+    next(error);
+  }
+};
