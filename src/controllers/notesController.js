@@ -14,8 +14,10 @@ export const getAllNotes = async (req, res, next) => {
       filter.tag = tag;
     }
 
-    if (search) {
-      filter.$text = { $search: search };
+    const normalizedSearch = typeof search === 'string' ? search.trim() : '';
+
+    if (normalizedSearch) {
+      filter.$text = { $search: normalizedSearch };
     }
 
     const pageNumber = Number(page);
