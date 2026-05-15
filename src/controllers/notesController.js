@@ -1,4 +1,6 @@
 import { Note } from '../models/note.js';
+import createError from 'http-errors';
+
 export const getAllNotes = async (req, res, next) => {
   try {
     const {
@@ -8,27 +10,29 @@ export const getAllNotes = async (req, res, next) => {
       search,
     } = req.query;
 
-    const filter = {};
-
-    if (tag) {
-      filter.tag = tag;
-    }
-
-    const normalizedSearch = typeof search === 'string' ? search.trim() : '';
-
-    if (normalizedSearch) {
-      filter.$text = { $search: normalizedSearch };
-    }
-
     const pageNumber = Number(page);
     const perPageNumber = Number(perPage);
     const skip = (pageNumber - 1) * perPageNumber;
 
-    const totalNotes = await Note.countDocuments(filter);
+    let query = Note.find();
 
-    const notes = await Note.find(filter)
-      .skip(skip)
-      .limit(perPageNumber);
+    if (tag) {
+      query = query.where('tag').equals(tag);
+    }
+
+    const normalizedSearch = typeof search === 'string' ? search.trim() : '';
+    if (normalizedSearch) {
+      const regex = new RegExp(normalizedSearch, 'i');
+      query = query.where('title').regex(regex).or([{ content: regex }]);
+    }
+
+    const [notes, totalNotes] = await Promise.all([
+      query.find()
+        .skip(skip)
+        .limit(perPageNumber)
+        .exec(),
+      query.find().countDocuments().exec(),
+    ]);
 
     res.status(200).json({
       page: pageNumber,
@@ -48,7 +52,7 @@ export const getNoteById = async (req, res, next) => {
     const note = await Note.findById(noteId);
 
     if (!note) {
-      return res.status(404).json({ message: 'Note not found' });
+      throw createError(404, 'Note not found');
     }
 
     res.status(200).json(note);
@@ -72,10 +76,10 @@ export const deleteNote = async (req, res, next) => {
     const deletedNote = await Note.findByIdAndDelete(noteId);
 
     if (!deletedNote) {
-      return res.status(404).json({ message: 'Note not found' });
+      throw createError(404, 'Note not found');
     }
 
-    res.status(200).json({ message: 'Note deleted' });
+    res.status(200).json(deletedNote);
   } catch (error) {
     next(error);
   }
@@ -85,12 +89,12 @@ export const updateNote = async (req, res, next) => {
   try {
     const { noteId } = req.params;
     const updatedNote = await Note.findByIdAndUpdate(noteId, req.body, {
-      new: true,
+      returnDocument: 'after',
       runValidators: true,
     });
 
     if (!updatedNote) {
-      return res.status(404).json({ message: 'Note not found' });
+      throw createError(404, 'Note not found');
     }
 
     res.status(200).json(updatedNote);

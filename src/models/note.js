@@ -25,5 +25,6 @@ const noteSchema = new mongoose.Schema(
 );
 
 noteSchema.index({ title: 'text', content: 'text' });
+noteSchema.index({ tag: 1 });
 
 export const Note = mongoose.model('Note', noteSchema);
