@@ -1,34 +1,13 @@
-import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { Session } from '../models/session.js';
 import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/time.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
 export const createSession = async (userId) => {
+  const accessToken = crypto.randomUUID();
+  const refreshToken = crypto.randomUUID();
+
   const accessTokenValidUntil = new Date(Date.now() + FIFTEEN_MINUTES);
   const refreshTokenValidUntil = new Date(Date.now() + ONE_DAY);
-
-  const accessToken = jwt.sign(
-    {
-      userId,
-      type: 'access',
-    },
-    JWT_SECRET,
-    {
-      expiresIn: '15m',
-    }
-  );
-
-  const refreshToken = jwt.sign(
-    {
-      userId,
-      type: 'refresh',
-    },
-    JWT_SECRET,
-    {
-      expiresIn: '1d',
-    }
-  );
 
   const session = await Session.create({
     userId,
