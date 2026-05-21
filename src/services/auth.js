@@ -6,27 +6,21 @@ export const createSession = async (userId) => {
   const accessToken = crypto.randomUUID();
   const refreshToken = crypto.randomUUID();
 
-  const accessTokenValidUntil = new Date(Date.now() + FIFTEEN_MINUTES);
-  const refreshTokenValidUntil = new Date(Date.now() + ONE_DAY);
-
   const session = await Session.create({
     userId,
     accessToken,
     refreshToken,
-    accessTokenValidUntil,
-    refreshTokenValidUntil,
+    accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
+    refreshTokenValidUntil: new Date(Date.now() + ONE_DAY),
   });
 
   return session;
 };
-
 export const setSessionCookies = (res, session) => {
-  const isProduction = process.env.NODE_ENV === 'production';
-
   const defaultOptions = {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
+    secure: true,
+    sameSite: 'none',
   };
 
   res.cookie('accessToken', session.accessToken, {
