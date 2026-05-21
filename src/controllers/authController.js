@@ -57,7 +57,7 @@ export const loginUser = async (req, res, next) => {
 
 export const refreshUserSession = async (req, res, next) => {
   try {
-    const { sessionId, refreshToken } = req.cookies;
+    const { sessionId, refreshToken } = req.cookies || {};
 
     const session = await Session.findOne({
       _id: sessionId,
@@ -85,7 +85,7 @@ export const refreshUserSession = async (req, res, next) => {
 
 export const logoutUser = async (req, res, next) => {
   try {
-    const { sessionId } = req.cookies;
+    const { sessionId } = req.cookies || {};
 
     if (sessionId) {
       await Session.deleteOne({ _id: sessionId });
