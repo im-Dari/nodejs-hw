@@ -1,3 +1,9 @@
+export const resetPasswordSchema = {
+  body: Joi.object({
+    token: Joi.string().required(),
+    password: Joi.string().min(8).required(),
+  }),
+};
 import Joi from 'joi';
 
 export const registerUserSchema = {
@@ -11,5 +17,11 @@ export const loginUserSchema = {
   body: Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
+  }),
+};
+
+export const requestResetEmailSchema = {
+  body: Joi.object({
+    email: Joi.string().email().required(),
   }),
 };

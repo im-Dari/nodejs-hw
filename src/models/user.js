@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -15,6 +16,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 8
+  },
+  avatar: {
+    type: String,
+    default: 'https://ac.goit.global/fullstack/react/default-avatar.jpg',
   }
 }, {
   timestamps: true
@@ -26,10 +31,11 @@ userSchema.methods.toJSON = function () {
   return obj;
 };
 
-userSchema.pre('save', function () {
+userSchema.pre('save', function (next) {
   if (!this.username) {
     this.username = this.email;
   }
+  next();
 });
 
 export const User = mongoose.model('User', userSchema);
